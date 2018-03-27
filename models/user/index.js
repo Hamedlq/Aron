@@ -7,7 +7,6 @@ var sendSms = require('../utils/sendSms');
 //var mongoose = require('mongoose');
 
 router.get('/', function (req, res) {
-
   User.find(function (err, users) {
     if (err)
       res.send(err);
@@ -16,43 +15,6 @@ router.get('/', function (req, res) {
   });
 });
 
-//POST route for updating data
-router.post('/', function (req, res, next) {
-  console.log("omad to post");
-  if (req.body.refercode &&
-    req.body.mobile) {
-    var date = new Date();
-
-    var userData = {
-      mobile: req.body.mobile,
-      refercode: req.body.refercode,
-      createTime: date,
-    }
-
-    User.create(userData, function (error, user) {
-      if (error) {
-        return next(error);
-      } else {
-        return res.redirect('/profile');
-      }
-    });
-
-  } else if (req.body.mobile) {
-    User.authenticate(req.body.mobile, function (error, user) {
-      if (error || !user) {
-        var err = new Error('Wrong email or password.');
-        err.status = 401;
-        return next(err);
-      } else {
-        return res.redirect('/profile');
-      }
-    });
-  } else {
-    var err = new Error('All fields required.');
-    err.status = 400;
-    return next(err);
-  }
-})
 router.get('/getToken', function (req, res, next) {
   console.log("bebin");
   generateToken(function (response) {
@@ -61,10 +23,34 @@ router.get('/getToken', function (req, res, next) {
   });
 })
 
+router.post('/sendUserInfo', function (req, res, next) {
+  if (req.body.token) {
+    User.findOneAndUpdate({ token: req.body.token }, {
+      name: req.body.name,
+      family: req.body.family,
+      address: req.body.address,
+      propertytype: req.body.propertytype,
+      shopname: req.body.shopname,
+      shopphone: req.body.shopphone,
+      shoplat: req.body.shoplat,
+      shoplng: req.body.shoplng,
+    }, { new: true }, function (err, user) {
+      if (err) {
+        console.log(err);
+        res.json({ Error: strings.internal_server })
+      }
+      if (user) {
+        res.json({ Message: user })
+      }
+    })
+  }
+})
+
+
 router.post('/confirmSmsCode', function (req, res, next) {
   if (req.body.mobile && req.body.vCode) {
-    User.findOneAndUpdate({ mobile: req.body.mobile }, function (err, user) {
-        console.log(err);  
+    User.findOne({ mobile: req.body.mobile }, function (err, user) {
+      console.log(err);
       console.log(req.body.vCode);
       if (user) {
         var vcode = generateCode(user.user_id);
@@ -72,7 +58,6 @@ router.post('/confirmSmsCode', function (req, res, next) {
         if (vcode == req.body.vCode) {
           generateToken(function (token) {
             user.token = token;
-            return res.json({ Token: token, IsUserRegistered: true });
             user.save(function (error) {
               if (!error) {
                 var IsUserRegistered = false;
@@ -87,27 +72,27 @@ router.post('/confirmSmsCode', function (req, res, next) {
           });
         }
       }
-      console.log("t");
     })
-    console.log("t1");
   }
 })
 
 //POST route for updating data
 router.post('/sendConfirmCode', function (req, res, next) {
   if (req.body.mobile && req.body.counter) {
-    console.log(req.body.mobile + req.body.counter);
     User.findOne({ mobile: req.body.mobile }, function (err, user) {
-      console.log(user);
-      console.log(err);
       if (user) {
-        console.log(user);
-        console.log("sms" + user.user_id);
         var vcode = generateCode(user.user_id);
         sendSms(vcode, 09358695785);
-        /* user.save(function(er){
-          user.smscount=user.smscount+1;
-        }) */
+        if (user.smscount) {
+          user.smscount = user.smscount + 1;
+        } else {
+          user.smscount = 1;
+        }
+        user.save(function (er) {
+          if (er) {
+            return res.json({ Error: strings.internal_server });
+          }
+        })
         //console.log("sms");
         return res.json({ Message: strings.code_sent });
       }

@@ -69,18 +69,11 @@ var UserSchema = new mongoose.Schema({
   },
 });
 
-//authenticate input against database
-UserSchema.statics.authenticate = function (mobile,callback) {
-  User.findOne({ mobile: mobile })
-    .exec(function (err, user) {
-      if (err) {
-        return callback(err)
-      } else if (!user) {
-        var err = new Error('User not found.');
-        err.status = 401;
-        return callback(err);
-      }
-    });
+UserSchema.methods.toJSON = function() {
+  var obj = this.toObject()
+  delete obj.user_id
+  delete obj._id
+  return obj
 }
 
 var User = mongoose.model('User', UserSchema);

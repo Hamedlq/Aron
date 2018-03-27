@@ -6,4 +6,5 @@ module.exports = {
     mobile_09 : "شماره موبایل با ۰۹ آغاز می‌شود",
     user_exists : "کاربر قبلا ثبت شده است",
     user_registered : "ثبت نام با موفقیت انجام شد",
+    internal_server : "خطای سرور رخ داده است",
 };
