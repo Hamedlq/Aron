@@ -11,6 +11,7 @@ var UserSchema = new mongoose.Schema({
   },
   token:{
     type: String,
+    unique: true,
     index:true
   },
   refercode: {
@@ -74,6 +75,7 @@ UserSchema.methods.toJSON = function() {
   var obj = this.toObject()
   delete obj.user_id
   delete obj._id
+  delete obj.token
   delete obj.token
   return obj
 }

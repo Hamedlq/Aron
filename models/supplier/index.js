@@ -10,10 +10,31 @@ router.get('/', function (req, res) {
     if (err)
       res.send(err);
     //responds with a json object of our database Suppliers.
+    console.log(getSupplierId());
     res.json(suppliers)
   });
 });
 
+
+router.post('/getusers', function (req, res) {
+  if (req.body.token) {
+    Supplier.find({ token: req.body.token }, function (err, supplier) {
+      if (err) {
+        console.log(err);
+      }
+    }).populate('users', '-_id mobile name family address shopname shopphone ')
+      .exec(function (err, users) {
+        if (err) {
+          console.log(err);
+        }
+        if (users.length > 0) {
+          return res.json(users);
+        }
+      });
+  } else {
+    res.json({ Error: strings.user_not_found })
+  }
+});
 
 router.post('/sendSupplierInfo', function (req, res, next) {
   if (req.body.token) {
@@ -33,6 +54,8 @@ router.post('/sendSupplierInfo', function (req, res, next) {
       }
       if (supplier) {
         res.json({ Message: supplier })
+      } else {
+        res.json({ Error: strings.user_not_found })
       }
     })
   }
@@ -50,7 +73,7 @@ router.post('/confirmSmsCode', function (req, res, next) {
         if (vcode == req.body.vCode) {
           generateToken(function (token) {
             supplier.token = token;
-            supplier.introducecode=generateRandom();
+            supplier.introducecode = generateRandom();
             supplier.save(function (error) {
               if (!error) {
                 var IsSupplierRegistered = false;
@@ -75,11 +98,11 @@ router.post('/sendConfirmCode', function (req, res, next) {
     Supplier.findOne({ mobile: req.body.mobile }, function (err, supplier) {
       if (supplier) {
         var vcode = generateCode(supplier.supplier_id);
-        sendSms(vcode, 09358695785);
+        sendSms(vcode, req.body.mobile);
         if (supplier.smscount) {
-            supplier.smscount = supplier.smscount + 1;
+          supplier.smscount = supplier.smscount + 1;
         } else {
-            supplier.smscount = 1;
+          supplier.smscount = 1;
         }
         supplier.save(function (er) {
           if (er) {
@@ -98,12 +121,12 @@ router.post('/login', function (req, res, next) {
   console.log("omad login" + req.body.mobile);
   if (req.body.mobile) {
     console.log(req.body.mobile);
-    Supplier.findOne({ mobile: req.body.mobile }, function (err, supplier) {
-      if (!supplier) {
+    Supplier.findOne({ mobile: req.body.mobile }, function (err, thesupplier) {
+      if (!thesupplier) {
         if (req.body.refercode) {
           Supplier.findOne({ introducecode: req.body.refercode }, function (err, supplier) {
             console.log(supplier);
-            if (supplier) {
+            if (!supplier) {
               //console.log(new Error(strings.wrong_refercode));
               return res.json({ Error: strings.wrong_refercode });
             } else {
@@ -114,6 +137,7 @@ router.post('/login', function (req, res, next) {
                 refercode: req.body.refercode,
                 createTime: date,
               }
+              console.log(supplierData);
 
               Supplier.create(supplierData, function (error, supplier) {
                 if (error) {
@@ -174,8 +198,8 @@ function generateToken(callback) {
 }
 
 function generateRandom() {
-    var ranId = Math.floor(Math.random() * Math.floor(999999));
+  var ranId = Math.floor(Math.random() * Math.floor(999999));
   return ranId;
-  }
+}
 
 module.exports = router;

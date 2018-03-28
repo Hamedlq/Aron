@@ -15,17 +15,57 @@ router.get('/', function (req, res) {
   });
 });
 
-router.get('/getsuppliers', function (req, res) {
-  User.find({ token: req.body.token }, function (err, users) {
-    if (err){
-      console.log(er);
-    }
-  }).populate('suppliers')
-  .exec(function(err,suppliers){
-    if(suppliers.length>0){
-      res.json(supplier);
-    }
-  });
+router.post('/getsuppliers', function (req, res) {
+  if (req.body.token) {
+    User.find({ token: req.body.token }, function (err, user) {
+      if (err) {
+        console.log(err);
+      }
+    }).populate('suppliers', '-_id mobile name family address shopname shopphone ')
+      .exec(function (err, suppliers) {
+        if (err) {
+          console.log(err);
+        }
+        if (suppliers.length > 0) {
+          return res.json(suppliers);
+        }
+      });
+  } else {
+    res.json({ Error: strings.user_not_found })
+  }
+});
+
+
+router.post('/addSupplier', function (req, res) {
+  if (req.body.token && req.body.introducecode) {
+    User.findOne({ token: req.body.token }, function (err, user) {
+      if (user) {
+        Supplier.findOneAndUpdate({ introducecode: req.body.introducecode }, { $push: { users: user } },
+          function (err, supplier) {
+            if (err) {
+              console.log(err);
+            } else {
+              if(supplier){
+                user.suppliers.push(supplier);
+                user.save(function (err) {
+                  if(err){
+                    console.log(err);
+                  }else{
+                    res.json({ Error: strings.supplier_added })    
+                  }
+                  
+                })
+              }
+            }
+          });
+      }else{
+        res.json({ Error: strings.user_not_found })    
+      }
+    });
+  }
+  else {
+    res.json({ Error: strings.user_not_found })
+  }
 });
 
 
@@ -127,7 +167,7 @@ router.post('/login', function (req, res, next) {
                 mobile: req.body.mobile,
                 refercode: req.body.refercode,
                 createTime: date,
-                supplier:[supplier]
+                suppliers: [supplier]
               }
               User.create(userData, function (error, user) {
                 if (error) {
@@ -135,11 +175,14 @@ router.post('/login', function (req, res, next) {
                   return next(error);
                 } else {
                   supplier.users.push(user);
-                  Supplier.save(function (error) {
-                    console.log(error);
-                    return res.json({Error:strings.internal_server});
-                  });   
-                  return res.json({ Message: strings.user_registered });
+                  supplier.save(function (error) {
+                    if (error) {
+                      console.log(error);
+                      return res.json({ Error: strings.internal_server });
+                    } else {
+                      return res.json({ Message: strings.user_registered });
+                    }
+                  });
                 }
               });
             }
@@ -191,5 +234,14 @@ function generateToken(callback) {
     return callback(token);
   });
 }
+
+function hasError(res, err) {
+  if (err) {
+    console.log(err);
+    return res.json({ Error: strings.internal_server });
+  } else {
+    return false;
+  }
+};
 
 module.exports = router;

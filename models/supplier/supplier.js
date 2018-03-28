@@ -12,6 +12,7 @@ var SupplierSchema = new mongoose.Schema({
   },
   token: {
     type: String,
+    unique: true,
     index: true
   },
   introducecode: {
@@ -78,7 +79,7 @@ var SupplierSchema = new mongoose.Schema({
 
 SupplierSchema.methods.toJSON = function () {
   var obj = this.toObject()
-  delete obj.Supplier_id
+  delete obj.supplier_id
   delete obj._id
   delete obj.token
   return obj
