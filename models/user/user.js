@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var strings = require('../../resources/strings');
-
+var Supplier=require('../supplier/supplier');
 
 var UserSchema = new mongoose.Schema({
   user_id: {
@@ -67,12 +67,14 @@ var UserSchema = new mongoose.Schema({
   shoplng: {
     type: String,
   },
+  suppliers : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' }]
 });
 
 UserSchema.methods.toJSON = function() {
   var obj = this.toObject()
   delete obj.user_id
   delete obj._id
+  delete obj.token
   return obj
 }
 

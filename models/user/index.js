@@ -15,13 +15,19 @@ router.get('/', function (req, res) {
   });
 });
 
-router.get('/getToken', function (req, res, next) {
-  console.log("bebin");
-  generateToken(function (response) {
-    console.log(response);
-    return next(true);
+router.get('/getsuppliers', function (req, res) {
+  User.find({ token: req.body.token }, function (err, users) {
+    if (err){
+      console.log(er);
+    }
+  }).populate('suppliers')
+  .exec(function(err,suppliers){
+    if(suppliers.length>0){
+      res.json(supplier);
+    }
   });
-})
+});
+
 
 router.post('/sendUserInfo', function (req, res, next) {
   if (req.body.token) {
@@ -82,7 +88,7 @@ router.post('/sendConfirmCode', function (req, res, next) {
     User.findOne({ mobile: req.body.mobile }, function (err, user) {
       if (user) {
         var vcode = generateCode(user.user_id);
-        sendSms(vcode, 09358695785);
+        sendSms(vcode, req.body.mobile);
         if (user.smscount) {
           user.smscount = user.smscount + 1;
         } else {
@@ -90,6 +96,7 @@ router.post('/sendConfirmCode', function (req, res, next) {
         }
         user.save(function (er) {
           if (er) {
+            console.log(er);
             return res.json({ Error: strings.internal_server });
           }
         })
@@ -110,7 +117,7 @@ router.post('/login', function (req, res, next) {
         if (req.body.refercode) {
           Supplier.findOne({ introducecode: req.body.refercode }, function (err, supplier) {
             console.log(supplier);
-            if (supplier) {
+            if (!supplier) {
               //console.log(new Error(strings.wrong_refercode));
               return res.json({ Error: strings.wrong_refercode });
             } else {
@@ -120,14 +127,18 @@ router.post('/login', function (req, res, next) {
                 mobile: req.body.mobile,
                 refercode: req.body.refercode,
                 createTime: date,
+                supplier:[supplier]
               }
-
               User.create(userData, function (error, user) {
                 if (error) {
                   console.log(error);
                   return next(error);
                 } else {
-                  console.log("true");
+                  supplier.users.push(user);
+                  Supplier.save(function (error) {
+                    console.log(error);
+                    return res.json({Error:strings.internal_server});
+                  });   
                   return res.json({ Message: strings.user_registered });
                 }
               });

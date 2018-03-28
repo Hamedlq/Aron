@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
+var User = require('../user/user');
 var strings = require('../../resources/strings');
 
 
 var SupplierSchema = new mongoose.Schema({
-  Supplier_id: {
+  supplier_id: {
     type: Number,
     required: true,
     unique: true,
@@ -15,7 +16,6 @@ var SupplierSchema = new mongoose.Schema({
   },
   introducecode: {
     type: String,
-    required: true,
     trim: true,
     unique: true
   },
@@ -73,12 +73,14 @@ var SupplierSchema = new mongoose.Schema({
   shoplng: {
     type: String,
   },
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
-SupplierSchema.methods.toJSON = function() {
+SupplierSchema.methods.toJSON = function () {
   var obj = this.toObject()
   delete obj.Supplier_id
   delete obj._id
+  delete obj.token
   return obj
 }
 
