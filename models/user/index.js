@@ -16,6 +16,7 @@ router.get('/', function (req, res) {
 });
 
 router.post('/getsuppliers', function (req, res) {
+  
   if (req.body.token) {
     User.find({ token: req.body.token }, function (err, user) {
       if (err) {

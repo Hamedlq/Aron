@@ -78,7 +78,8 @@ UserSchema.methods.toJSON = function() {
   delete obj.user_id
   delete obj._id
   delete obj.token
-  delete obj.token
+  delete obj.suppliers
+  delete obj.items
   return obj
 }
 
