@@ -68,7 +68,9 @@ var UserSchema = new mongoose.Schema({
   shoplng: {
     type: String,
   },
-  suppliers : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' }]
+  suppliers : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' }],
+
+  items : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 });
 
 UserSchema.methods.toJSON = function() {

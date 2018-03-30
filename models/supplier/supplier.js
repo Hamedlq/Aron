@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var User = require('../user/user');
+var Item = require('../item/item');
 var strings = require('../../resources/strings');
 
 
@@ -75,6 +76,7 @@ var SupplierSchema = new mongoose.Schema({
     type: String,
   },
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
 });
 
 SupplierSchema.methods.toJSON = function () {

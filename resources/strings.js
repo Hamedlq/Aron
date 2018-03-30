@@ -11,4 +11,5 @@ module.exports = {
     internal_server : "خطای سرور رخ داده است",
     user_not_found : "کاربر پیدا نشد",
     supplier_added : "تامین کننده اضافه شد",
+    item_added : "سفارش ثبت شد",
 };

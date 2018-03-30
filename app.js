@@ -34,8 +34,13 @@ app.use('/', router);
 // include routes
 var routes = require('./models/user/index');
 app.use('/user', routes);
-var sroutes = require('./models/supplier/index');
-app.use('/supplier', sroutes);
+var supplierroutes = require('./models/supplier/index');
+app.use('/supplier', supplierroutes);
+var itemroutes = require('./models/item/index');
+app.use('/item', itemroutes);
+var orderroutes = require('./models/order/index');
+app.use('/order', orderroutes);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

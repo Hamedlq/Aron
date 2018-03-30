@@ -10,7 +10,7 @@ var ItemSchema = new mongoose.Schema({
     index: true
   },
   supplier_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, ref: 'Supplier'
   },
   createTime: {
     type: Date,
@@ -28,6 +28,7 @@ var ItemSchema = new mongoose.Schema({
   itemDescription: {
     type: String,
   },
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
 ItemSchema.methods.toJSON = function () {
