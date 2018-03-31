@@ -84,8 +84,6 @@ SupplierSchema.methods.toJSON = function () {
   delete obj.supplier_id
   delete obj._id
   delete obj.token
-  delete obj.users
-  delete obj.items
   return obj
 }
 

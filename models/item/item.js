@@ -35,7 +35,6 @@ ItemSchema.methods.toJSON = function () {
   var obj = this.toObject()
   delete obj.item_id
   delete obj._id
-  delete obj.users
   return obj
 }
 
