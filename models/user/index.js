@@ -81,7 +81,8 @@ router.post('/sendUserInfo', function (req, res, next) {
       shopphone: req.body.shopphone,
       shoplat: req.body.shoplat,
       shoplng: req.body.shoplng,
-    }, { new: true }, function (err, user) {
+    }, { "fields": "name family shopname shopphone",
+      new: true }, function (err, user) {
       if (err) {
         console.log(err);
         res.json({ Error: strings.internal_server })
