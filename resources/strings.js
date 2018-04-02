@@ -12,4 +12,5 @@ module.exports = {
     user_not_found : "کاربر پیدا نشد",
     supplier_added : "تامین کننده اضافه شد",
     item_added : "سفارش ثبت شد",
+    order_removed : "سفارش حذف شد",
 };

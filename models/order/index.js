@@ -65,24 +65,60 @@ router.post('/supplierOrders', function (req, res) {
 
 router.post('/userOrders', function (req, res) {
     if (req.body.token) {
-        User.find({ token: req.body.token },{select: 'mobile'}, function (err, user) {
-          if (err) {
-            console.log(err);
-          }
-        }).populate('items', '-_id itemName itemBrand itemPrice itemDescription')
-          .exec(function (err, items) {
-            
+        User.find({ token: req.body.token }, { select: 'mobile' }, function (err, user) {
             if (err) {
-              console.log(err);
+                console.log(err);
             }
-            if (items.length > 0) {
-                console.log(items);
-              return res.json(items);
-            }
-          });
-      } else {
+        }).populate({
+            path: 'items', select: '-_id item_id itemName itemBrand itemPrice itemDescription',
+            populate: { path: 'supplier_id', select: '-_id mobile name family shopname shopphone' }
+        })
+            .exec(function (err, items) {
+
+                if (err) {
+                    console.log(err);
+                }
+                if (items.length > 0) {
+                    console.log(items);
+                    return res.json(items);
+                }
+            });
+    } else {
         res.json({ Error: strings.user_not_found })
-      }
+    }
 });
+
+
+router.post('/cancelOrder', function (req, res) {
+    if (req.body.token && req.body.item_id) {
+        User.findOne({ token: req.body.token }, function (err, user) {
+            console.log(user);
+            if (err) {
+                console.log(err);
+            }
+            if (user) {
+                Item.findOneAndUpdate({ item_id: req.body.item_id },
+                    { $pull: { users: user._id } },
+                    function (err, item) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        if(item){
+                            user.update({ $pull: { items: item._id } },function(err){
+                                if (err) {
+                                    console.log(err);
+                                }else{
+                                    res.json({ Message: strings.order_removed })
+                                }       
+                            })
+                        }
+                    });
+            } else {
+                res.json({ Error: strings.user_not_found })
+            }
+        });
+    }
+});
+
 
 module.exports = router;

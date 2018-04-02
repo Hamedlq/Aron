@@ -130,24 +130,26 @@ router.post('/login', function (req, res, next) {
               //console.log(new Error(strings.wrong_refercode));
               return res.json({ Error: strings.wrong_refercode });
             } else {
-              var date = new Date();
-              var supplierData = {
-                supplier_id: getSupplierId(),
-                mobile: req.body.mobile,
-                refercode: req.body.refercode,
-                createTime: date,
-              }
-              console.log(supplierData);
-
-              Supplier.create(supplierData, function (error, supplier) {
-                if (error) {
-                  console.log(error);
-                  return next(error);
-                } else {
-                  console.log("true");
-                  return res.json({ Message: strings.supplier_registered });
+              getSupplierId(function (randId) {
+                var date = new Date();
+                var supplierData = {
+                  supplier_id: randId,
+                  mobile: req.body.mobile,
+                  refercode: req.body.refercode,
+                  createTime: date,
                 }
-              });
+                console.log(supplierData);
+  
+                Supplier.create(supplierData, function (error, supplier) {
+                  if (error) {
+                    console.log(error);
+                    return next(error);
+                  } else {
+                    console.log("true");
+                    return res.json({ Message: strings.supplier_registered });
+                  }
+                });
+              })
             }
           });
         } else {
@@ -175,18 +177,16 @@ function generateCode(_id) {
   return code;
 }
 
-function getSupplierId() {
-  var ranId = Math.floor(Math.random() * Math.floor(99999));
-  /* console.log('ranId: ' + ranId);
-  Supplier.count({ Supplier_id: ranId }, function (err, count) {
-      console.log(err);
-    if (count>0) {
-      console.log('null');
-      ranId=getSupplierId();
-    }
-  }) */
-  return ranId;
-
+function getSupplierId(callback) {
+    var ranId = Math.floor(Math.random() * Math.floor(999999));
+    console.log('ranId: ' + ranId);
+    Item.count({ item_id: ranId }, function (err, count) {
+        if (count == 0) {
+            return callback(ranId);
+        } else {
+            return getItemId(callback);
+        }
+    })
 }
 
 

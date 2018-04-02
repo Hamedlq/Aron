@@ -18,7 +18,7 @@ router.get('/', function (req, res) {
 router.post('/getsuppliers', function (req, res) {
   
   if (req.body.token) {
-    User.find({ token: req.body.token }, function (err, user) {
+    User.find({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
       if (err) {
         console.log(err);
       }
