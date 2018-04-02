@@ -86,7 +86,7 @@ router.post('/userItems', function (req, res) {
                 console.log(err);
             }
         }).populate({path: 'suppliers',select:'-_id mobile',
-        populate : {path : 'items',select:'-_id itemName itemBrand itemPrice itemDescription'}} )
+        populate : {path : 'items',select:'-_id item_id itemName itemBrand itemPrice itemDescription'}} )
             .exec(function (err, items) {
                 if (err) {
                     console.log(err);
