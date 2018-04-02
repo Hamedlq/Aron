@@ -65,7 +65,7 @@ router.post('/supplierItems', function (req, res) {
             if (err) {
                 console.log(err);
             }
-        }).populate('items', '-_id itemName itemBrand itemPrice itemDescription')
+        }).populate('items', '-_id item_id itemName itemBrand itemPrice itemDescription')
             .exec(function (err, items) {
                 if (err) {
                     console.log(err);
@@ -85,7 +85,7 @@ router.post('/userItems', function (req, res) {
             if (err) {
                 console.log(err);
             }
-        }).populate({path: 'suppliers',select:'-_id mobile',
+        }).populate({path: 'suppliers',select:'-_id mobile name family shopname shopphone',
         populate : {path : 'items',select:'-_id item_id itemName itemBrand itemPrice itemDescription'}} )
             .exec(function (err, items) {
                 if (err) {
