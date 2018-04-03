@@ -46,7 +46,10 @@ router.post('/supplierOrders', function (req, res) {
                 console.log(err);
             } else {
                 console.log(supplier);
-                Item.find({ supplier_id: supplier._id }, function (err, item) {
+                Item.find({ supplier_id: supplier._id },'itemName itemBrand itemPrice itemDescription', function (err, item) {
+                    if (err) {
+                        console.log(err);
+                    }
                 }).populate('users', '-_id mobile name family address shopname shopphone ')
                     .exec(function (err, users) {
                         if (err) {
@@ -65,7 +68,7 @@ router.post('/supplierOrders', function (req, res) {
 
 router.post('/userOrders', function (req, res) {
     if (req.body.token) {
-        User.find({ token: req.body.token }, { select: 'mobile' }, function (err, user) {
+        User.find({ token: req.body.token }, 'mobile' , function (err, user) {
             if (err) {
                 console.log(err);
             }

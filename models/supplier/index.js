@@ -18,7 +18,7 @@ router.get('/', function (req, res) {
 
 router.post('/getusers', function (req, res) {
   if (req.body.token) {
-    Supplier.find({ token: req.body.token }, function (err, supplier) {
+    Supplier.find({ token: req.body.token },'mobile name family address shopname shopphone ', function (err, supplier) {
       if (err) {
         console.log(err);
       }
@@ -47,7 +47,8 @@ router.post('/sendSupplierInfo', function (req, res, next) {
       shopphone: req.body.shopphone,
       shoplat: req.body.shoplat,
       shoplng: req.body.shoplng,
-    }, { new: true }, function (err, supplier) {
+    }, { "fields": "name family shopname shopphone",
+     new: true }, function (err, supplier) {
       if (err) {
         console.log(err);
         res.json({ Error: strings.internal_server })

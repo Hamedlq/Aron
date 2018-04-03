@@ -61,7 +61,7 @@ router.post('/insertItem', function (req, res, next) {
 
 router.post('/supplierItems', function (req, res) {
     if (req.body.token) {
-        Supplier.find({ token: req.body.token }, function (err, supplier) {
+        Supplier.find({ token: req.body.token },'mobile name family shopname shopphone', function (err, supplier) {
             if (err) {
                 console.log(err);
             }
