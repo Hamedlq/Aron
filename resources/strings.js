@@ -13,4 +13,5 @@ module.exports = {
     supplier_added : "تامین کننده اضافه شد",
     item_added : "سفارش ثبت شد",
     order_removed : "سفارش حذف شد",
+    wrong_confirmcode : "کد تایید اشتباه است",
 };

@@ -3,6 +3,7 @@ var strings = require('../../resources/strings');
 var router = express.Router();
 var Supplier = require('./supplier');
 var sendSms = require('../utils/sendSms');
+var Item = require('../item/item');
 //var mongoose = require('mongoose');
 
 router.get('/', function (req, res) {
@@ -81,12 +82,16 @@ router.post('/confirmSmsCode', function (req, res, next) {
                 if (supplier.name) {
                   IsSupplierRegistered = true;
                 }
-                return res.json({ Token: token, IsSupplierRegistered: IsSupplierRegistered });
+                return res.json({ Token: token, 
+                  IsSupplierRegistered: IsSupplierRegistered,
+                Introducecode: supplier.introducecode});
               } else {
                 return next(err);
               }
             });
           });
+        }else{
+          return res.json({ Error: strings.wrong_confirmcode });
         }
       }
     })
