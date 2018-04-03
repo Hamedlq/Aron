@@ -5,6 +5,7 @@ module.exports = {
     mobile_count : "شماره موبایل ۱۱ عدد می‌باشد",
     mobile_09 : "شماره موبایل با ۰۹ آغاز می‌شود",
     user_exists : "کاربر قبلا ثبت شده است",
+    supplier_exists: "کاربر قبلا ثبت شده است",
     user_registered : "ثبت نام با موفقیت انجام شد",
     supplier_registered:"ثبت تامین کننده با موفقیت انجام شد",
     item_registered:"کالا ثبت شد",
@@ -14,4 +15,6 @@ module.exports = {
     item_added : "سفارش ثبت شد",
     order_removed : "سفارش حذف شد",
     wrong_confirmcode : "کد تایید اشتباه است",
+    item_has_order : "سفارشی برای این کالا وجود دارد ابتدا آن را پاک کنید",
+    item_removed : "کالا پاک شد",
 };

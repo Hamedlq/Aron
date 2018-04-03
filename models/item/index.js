@@ -58,10 +58,45 @@ router.post('/insertItem', function (req, res, next) {
 })
 
 
+router.post('/delete', function (req, res) {
+    if (req.body.token && req.body.item_id) {
+        Supplier.findOne({ token: req.body.token }, function (err, supplier) {
+            //console.log(supplier);
+            if (err) {
+                console.log(err);
+            }
+            if (supplier) {
+                Item.find({ item_id: req.body.item_id, supplier_id: supplier._id },
+                    function (err, item) {
+                        if (item) {
+                            //console.log(item.users);
+                            if (item.users && item.users.length > 0) {
+                                res.json({ Error: strings.item_has_order })
+                            } else {
+                                Item.remove({ item_id: req.body.item_id, supplier_id: supplier._id },
+                                    function (err) {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            res.json({ Message: strings.item_removed });
+                                        }
+                                    });
+                            }
+                        }
+                    }
+                )
+            } else {
+                res.json({ Error: strings.user_not_found })
+            }
+        });
+    }
+});
+
+
 
 router.post('/supplierItems', function (req, res) {
     if (req.body.token) {
-        Supplier.find({ token: req.body.token },'mobile name family shopname shopphone', function (err, supplier) {
+        Supplier.find({ token: req.body.token }, 'mobile name family shopname shopphone', function (err, supplier) {
             if (err) {
                 console.log(err);
             }
@@ -79,14 +114,37 @@ router.post('/supplierItems', function (req, res) {
     }
 });
 
-router.post('/userItems', function (req, res) {
+router.post('/supplierItems', function (req, res) {
     if (req.body.token) {
-        User.find({ token: req.body.token },{select: 'mobile'}, function (err, user) {
+        Supplier.find({ token: req.body.token }, 'mobile name family shopname shopphone', function (err, supplier) {
             if (err) {
                 console.log(err);
             }
-        }).populate({path: 'suppliers',select:'-_id mobile name family shopname shopphone',
-        populate : {path : 'items',select:'-_id item_id itemName itemBrand itemPrice itemDescription'}} )
+        }).populate('items', '-_id item_id itemName itemBrand itemPrice itemDescription')
+            .exec(function (err, items) {
+                if (err) {
+                    console.log(err);
+                }
+                if (items.length > 0) {
+                    return res.json(items);
+                }
+            });
+    } else {
+        res.json({ Error: strings.user_not_found })
+    }
+});
+
+
+router.post('/userItems', function (req, res) {
+    if (req.body.token) {
+        User.find({ token: req.body.token }, { select: 'mobile' }, function (err, user) {
+            if (err) {
+                console.log(err);
+            }
+        }).populate({
+            path: 'suppliers', select: '-_id mobile name family shopname shopphone',
+            populate: { path: 'items', select: '-_id item_id itemName itemBrand itemPrice itemDescription' }
+        })
             .exec(function (err, items) {
                 if (err) {
                     console.log(err);
