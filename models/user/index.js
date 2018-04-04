@@ -108,9 +108,9 @@ router.post('/confirmSmsCode', function (req, res, next) {
             user.token = token;
             user.save(function (error) {
               if (!error) {
-                var IsUserRegistered = false;
+                var IsUserRegistered = null;
                 if (user.name) {
-                  IsUserRegistered = true;
+                  IsUserRegistered = user.name;
                 }
                 return res.json({ Token: token, IsUserRegistered: IsUserRegistered });
               } else {
