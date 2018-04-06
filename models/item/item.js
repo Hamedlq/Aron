@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var strings = require('../../resources/strings');
-
+var searchPlugin = require('mongoose-search-plugin');
 
 var ItemSchema = new mongoose.Schema({
   item_id: {
@@ -38,6 +38,7 @@ ItemSchema.methods.toJSON = function () {
   return obj
 }
 
+ItemSchema.index({ itemName: 'text', itemBrand:'text', itemDescription: 'text'});
 
 var Item = mongoose.model('Item', ItemSchema);
 

@@ -114,18 +114,19 @@ router.post('/supplierItems', function (req, res) {
     }
 });
 
-router.post('/supplierItems', function (req, res) {
+router.post('/supplierSearchItems', function (req, res) {
     if (req.body.token) {
         Supplier.find({ token: req.body.token }, 'mobile name family shopname shopphone', function (err, supplier) {
             if (err) {
                 console.log(err);
             }
-        }).populate('items', '-_id item_id itemName itemBrand itemPrice itemDescription')
+        }).populate({path:'items', select:'-_id item_id itemName itemBrand itemPrice itemDescription',
+        match: { $text: { $search: req.body.query } }})
             .exec(function (err, items) {
                 if (err) {
                     console.log(err);
                 }
-                if (items.length > 0) {
+                if (items && items.length > 0) {
                     return res.json(items);
                 }
             });
@@ -137,7 +138,7 @@ router.post('/supplierItems', function (req, res) {
 
 router.post('/userItems', function (req, res) {
     if (req.body.token) {
-        User.find({ token: req.body.token }, { select: 'mobile' }, function (err, user) {
+        User.find({ token: req.body.token }, 'user_id', function (err, user) {
             if (err) {
                 console.log(err);
             }
@@ -157,6 +158,38 @@ router.post('/userItems', function (req, res) {
         res.json({ Error: strings.user_not_found })
     }
 });
+
+
+router.post('/userSearchItem', function (req, res) {
+    if (req.body.token) {
+        User.find({ token: req.body.token }, 'user_id', function (err, user) {
+            if (err) {
+                console.log(err);
+            }
+            console.log(user);
+            console.log("user+");
+        }).populate({
+            path: 'suppliers', select: '-_id mobile name family shopname shopphone',
+            populate: {
+                path: 'items', select: '-_id item_id itemName itemBrand itemPrice itemDescription',
+                match: { $text: { $search: req.body.query } }
+            }
+        }).exec(function (err, items) {
+            if (err) {
+                console.log(err);
+            }
+            console.log(items);
+            if (items.length > 0) {
+                return res.json(items);
+            }
+        });
+    } else {
+        res.json({ Error: strings.user_not_found })
+    }
+
+});
+
+
 
 function getItemId(callback) {
     var ranId = Math.floor(Math.random() * Math.floor(999999999999));
