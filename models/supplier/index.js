@@ -79,8 +79,8 @@ router.post('/confirmSmsCode', function (req, res, next) {
             supplier.save(function (error) {
               if (!error) {
                 var IsSupplierRegistered = null;
-                if (user.name) {
-                  IsSupplierRegistered = user.name;
+                if (supplier.name) {
+                  IsSupplierRegistered = supplier.name;
                 }
                 return res.json({ Token: token, 
                   IsSupplierRegistered: IsSupplierRegistered,
