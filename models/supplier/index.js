@@ -78,9 +78,9 @@ router.post('/confirmSmsCode', function (req, res, next) {
             supplier.introducecode = generateRandom();
             supplier.save(function (error) {
               if (!error) {
-                var IsSupplierRegistered = false;
-                if (supplier.name) {
-                  IsSupplierRegistered = true;
+                var IsSupplierRegistered = null;
+                if (user.name) {
+                  IsSupplierRegistered = user.name;
                 }
                 return res.json({ Token: token, 
                   IsSupplierRegistered: IsSupplierRegistered,
