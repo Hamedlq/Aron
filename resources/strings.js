@@ -18,4 +18,5 @@ module.exports = {
     item_has_order : "سفارشی برای این کالا وجود دارد ابتدا آن را پاک کنید",
     item_removed : "کالا پاک شد",
     no_result_found : "نتیجه ای پیدا نشد",
+    done: "ثبت شد"
 };

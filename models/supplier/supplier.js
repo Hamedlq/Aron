@@ -16,6 +16,9 @@ var SupplierSchema = new mongoose.Schema({
     unique: true,
     index: true
   },
+  ostoken: {
+    type: String,
+  },
   introducecode: {
     type: String,
     trim: true,

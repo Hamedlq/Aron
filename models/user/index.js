@@ -95,6 +95,32 @@ router.post('/sendUserInfo', function (req, res, next) {
 })
 
 
+router.post('/setUserToken', function (req, res, next) {
+  if (req.body.token) {
+    User.findOne({ token: req.body.token }, function (err, user) {
+      if (err) {
+        console.log(err);
+        res.json({ Error: strings.internal_server })
+      }
+      if (user) {
+        if(user.ostoken!=req.body.oneSignalToken){
+          user.ostoken=req.body.oneSignalToken;
+          user.save(function(er){
+            if(er){
+              console.log(er);
+            }else{
+              res.json({ Message: strings.done })
+            }
+          })
+        }
+      } else {
+        res.json({ Error: strings.user_not_found })
+      }
+    })
+  }
+});
+
+
 router.post('/confirmSmsCode', function (req, res, next) {
   if (req.body.mobile && req.body.vCode) {
     User.findOne({ mobile: req.body.mobile }, function (err, user) {

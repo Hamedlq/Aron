@@ -61,7 +61,32 @@ router.post('/sendSupplierInfo', function (req, res, next) {
       }
     })
   }
-})
+});
+
+router.post('/setSupplierToken', function (req, res, next) {
+  if (req.body.token) {
+    Supplier.findOne({ token: req.body.token }, function (err, supplier) {
+      if (err) {
+        console.log(err);
+        res.json({ Error: strings.internal_server })
+      }
+      if (supplier) {
+        if(supplier.ostoken!=req.body.oneSignalToken){
+          supplier.ostoken=req.body.oneSignalToken;
+          supplier.save(function(er){
+            if(er){
+              console.log(er);
+            }else{
+              res.json({ Message: strings.done })
+            }
+          })
+        }
+      } else {
+        res.json({ Error: strings.user_not_found })
+      }
+    })
+  }
+});
 
 
 router.post('/confirmSmsCode', function (req, res, next) {
