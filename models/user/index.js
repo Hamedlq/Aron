@@ -6,7 +6,7 @@ var Supplier = require('../supplier/supplier');
 var sendSms = require('../utils/sendSms');
 //var mongoose = require('mongoose');
 
-router.get('/', function (req, res) {
+/* router.get('/', function (req, res) {
   User.find(function (err, users) {
     if (err)
       res.send(err);
@@ -14,7 +14,7 @@ router.get('/', function (req, res) {
     res.json(users)
   });
 });
-
+ */
 router.post('/getsuppliers', function (req, res) {
   
   if (req.body.token) {
@@ -112,6 +112,8 @@ router.post('/setUserToken', function (req, res, next) {
               res.json({ Message: strings.done })
             }
           })
+        }else{
+          res.json({ Error: strings.repeated_code })  
         }
       } else {
         res.json({ Error: strings.user_not_found })
@@ -177,14 +179,14 @@ router.post('/sendConfirmCode', function (req, res, next) {
 
 //POST route for updating data
 router.post('/login', function (req, res, next) {
-  console.log("omad login" + req.body.mobile);
+  //console.log("omad login" + req.body.mobile);
   if (req.body.mobile) {
-    console.log(req.body.mobile);
+    //console.log(req.body.mobile);
     User.findOne({ mobile: req.body.mobile }, function (err, user) {
       if (!user) {
         if (req.body.refercode) {
           Supplier.findOne({ introducecode: req.body.refercode }, function (err, supplier) {
-            console.log(supplier);
+            //console.log(supplier);
             if (!supplier) {
               //console.log(new Error(strings.wrong_refercode));
               return res.json({ Error: strings.wrong_refercode });
@@ -216,7 +218,7 @@ router.post('/login', function (req, res, next) {
             }
           });
         } else {
-          return res.json({ Error: strings.fill_fields });
+          return res.json({ Error: strings.refercode_oblige });
           /*           var err = new Error(strings.fill_fields);
                     err.status = 400;
                     return next(err); */

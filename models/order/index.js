@@ -4,7 +4,7 @@ var router = express.Router();
 var Item = require('../item/item');
 var Supplier = require('../supplier/supplier');
 var User = require('../user/user');
-
+var sendNotif = require('../utils/sendSupplierNotification');
 
 router.post('/insertOrder', function (req, res, next) {
     if (req.body.token && req.body.item_id) {
@@ -21,6 +21,13 @@ router.post('/insertOrder', function (req, res, next) {
                                     if (err) {
                                         console.log(err);
                                     } else {
+                                        Supplier.findOne({ _id: item.supplier_id},function(err,supplier){
+                                            if(err){console.log(err)}else{
+                                                sendNotif(supplier.ostoken, 
+                                                   item.itemName +" "+ item.itemBrand , 
+                                                user.name +" "+user.family+" سفارش "+item.itemName +" "+ item.itemBrand +" ثبت کرده است");
+                                            }
+                                        })
                                         res.json({ Message: strings.item_added })
                                     }
                                 })
@@ -111,6 +118,13 @@ router.post('/cancelOrder', function (req, res) {
                                 if (err) {
                                     console.log(err);
                                 }else{
+                                    Supplier.findOne({ _id: item.supplier_id},function(err,supplier){
+                                        if(err){console.log(err)}else{
+                                            sendNotif(supplier.ostoken, 
+                                               'سفارش '+item.itemName +" "+ item.itemBrand + " کنسل شد", 
+                                            user.name +" "+user.family+" سفارش "+item.itemName +" "+ item.itemBrand +" را حذف کرد");
+                                        }
+                                    })
                                     res.json({ Message: strings.order_removed })
                                 }       
                             })

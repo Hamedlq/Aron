@@ -1,6 +1,7 @@
 module.exports = {
     wrong_refercode : "کد معرفی اشتباه است",
     fill_fields : "لطفا فیلدها را پر کنید",
+    refercode_oblige : "در اولین ورود کد معرفی الزامی است",
     code_sent : "کد تایید پیامک شد",
     mobile_count : "شماره موبایل ۱۱ عدد می‌باشد",
     mobile_09 : "شماره موبایل با ۰۹ آغاز می‌شود",
@@ -18,5 +19,7 @@ module.exports = {
     item_has_order : "سفارشی برای این کالا وجود دارد ابتدا آن را پاک کنید",
     item_removed : "کالا پاک شد",
     no_result_found : "نتیجه ای پیدا نشد",
-    done: "ثبت شد"
+    done: "ثبت شد",
+    repeated_code:"کد تکراری است"
+
 };

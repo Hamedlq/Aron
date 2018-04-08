@@ -14,6 +14,9 @@ var UserSchema = new mongoose.Schema({
     unique: true,
     index:true
   },
+  ostoken:{
+    type: String
+  },
   refercode: {
     type: String,
     required: true,
