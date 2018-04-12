@@ -69,6 +69,9 @@ var SupplierSchema = new mongoose.Schema({
   shopname: {
     type: String,
   },
+  supportbrands: {
+    type: String,
+  },
   shopphone: {
     type: String,
   },

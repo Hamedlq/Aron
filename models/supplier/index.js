@@ -44,8 +44,7 @@ router.post('/sendSupplierInfo', function (req, res, next) {
       name: req.body.name,
       family: req.body.family,
       address: req.body.address,
-      propertytype: req.body.propertytype,
-      shopname: req.body.shopname,
+      supportbrands: req.body.supportbrands,
       shopphone: req.body.shopphone,
       shoplat: req.body.shoplat,
       shoplng: req.body.shoplng,
@@ -65,6 +64,22 @@ router.post('/sendSupplierInfo', function (req, res, next) {
       })
   }
 });
+
+router.post('/getInitialInfo', function (req, res) {  
+  if (req.body.token) {
+    Supplier.findOne({ token: req.body.token },' mobile name family supportbrands shopphone', function (err, supplier) {
+      if (err) {
+        console.log(err);
+      }
+      if(supplier){
+        return res.json("09307606826");
+      }
+      });
+  } else {
+    res.json({ Error: strings.user_not_found })
+  }
+});
+
 
 router.post('/setSupplierToken', function (req, res, next) {
   if (req.body.token) {

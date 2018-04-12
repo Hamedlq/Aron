@@ -36,10 +36,43 @@ router.post('/getsuppliers', function (req, res) {
   }
 });
 
+router.post('/getUser', function (req, res) {  
+  if (req.body.token) {
+    User.findOne({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
+      if (err) {
+        console.log(err);
+      }
+      if(user){
+        return res.json(user);
+      }
+
+      });
+  } else {
+    res.json({ Error: strings.user_not_found })
+  }
+});
+
+
+router.post('/getSupportPhone', function (req, res) {  
+  if (req.body.token) {
+    User.findOne({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
+      if (err) {
+        console.log(err);
+      }
+      if(user){
+        return res.json("09307606826");
+      }
+
+      });
+  } else {
+    res.json({ Error: strings.user_not_found })
+  }
+});
 
 router.post('/addSupplier', function (req, res) {
   if (req.body.token && req.body.introducecode) {
     User.findOne({ token: req.body.token }, function (err, user) {
+      console.log(user);
       if (user) {
         Supplier.findOneAndUpdate({ introducecode: req.body.introducecode }, { $push: { users: user } },
           function (err, supplier) {
@@ -52,10 +85,12 @@ router.post('/addSupplier', function (req, res) {
                   if(err){
                     console.log(err);
                   }else{
-                    res.json({ Error: strings.supplier_added })    
+                    res.json({ Message: strings.supplier_added })    
                   }
                   
                 })
+              }else{
+                res.json({ Error: strings.wrong_refer_code })    
               }
             }
           });
