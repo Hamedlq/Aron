@@ -63,9 +63,8 @@ router.post('/getInitialInfo', function (req, res) {
         return res.json("09307606826");
       }else{
         res.status=401;
-        res.send(401, strings.user_not_found);
+        res.send(401, { Error: strings.user_not_found });
       }
-
       });
   } else {
     res.json({ Error: strings.user_not_found })
