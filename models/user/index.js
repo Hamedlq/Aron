@@ -53,7 +53,7 @@ router.post('/getUser', function (req, res) {
 });
 
 
-router.post('/getSupportPhone', function (req, res) {  
+router.post('/getInitialInfo', function (req, res) {  
   if (req.body.token) {
     User.findOne({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
       if (err) {
