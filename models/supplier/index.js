@@ -209,7 +209,7 @@ router.post('/login', function (req, res, next) {
         if (req.body.refercode) {
           Supplier.findOne({ introducecode: req.body.refercode }, function (err, supplier) {
             //console.log(supplier);
-            if (supplier) {
+            if (!supplier) {
               //console.log(new Error(strings.wrong_refercode));
               return res.json({ Error: strings.wrong_refercode });
             } else {
