@@ -136,7 +136,7 @@ router.post('/supplierItems', function (req, res) {
 
 router.post('/supplierSearchItems', function (req, res) {
     if (req.body.token) {
-        let regex = new RegExp(req.body.query, 'i');
+        var regex = new RegExp(req.body.query, 'i');
         Supplier.find({ token: req.body.token }, 'mobile name family shopname shopphone items',
             function (err, supplier) {
                 if (err) {
@@ -211,7 +211,7 @@ router.post('/userItems', function (req, res) {
 
 router.post('/userSearchItem', function (req, res) {
     if (req.body.token) {
-        let regex = new RegExp(req.body.query, 'i');
+        var regex = new RegExp(req.body.query, 'i');
         User.find({ token: req.body.token }, 'user_id', function (err, user) {
             if (err) {
                 console.log(err);
