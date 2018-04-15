@@ -5,6 +5,10 @@ var strings = require('../../resources/strings');
 
 
 var SupplierSchema = new mongoose.Schema({
+  schema_version:{
+    type:  Number,
+    required: true,
+  },
   supplier_id: {
     type: Number,
     required: true,
@@ -81,8 +85,8 @@ var SupplierSchema = new mongoose.Schema({
   shoplng: {
     type: String,
   },
-  users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
+  users: [{createTime: Date, present:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }}],
+  items: [{createTime: Date, submitted:{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }}],
 });
 
 SupplierSchema.methods.toJSON = function () {

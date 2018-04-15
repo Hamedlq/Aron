@@ -3,6 +3,10 @@ var strings = require('../../resources/strings');
 var searchPlugin = require('mongoose-search-plugin');
 
 var ItemSchema = new mongoose.Schema({
+  schema_version:{
+    type:  Number,
+    required: true,
+  },
   item_id: {
     type: Number,
     required: true,
@@ -22,18 +26,21 @@ var ItemSchema = new mongoose.Schema({
   itemBrand: {
     type: String,
   },
+  visitorPrice: {
+    type: String,
+  },
   itemPrice: {
     type: String,
   },
+
   itemDescription: {
     type: String,
   },
-  users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  users: [{createTime:Date,orderedBy:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }}],
 });
 
 ItemSchema.methods.toJSON = function () {
   var obj = this.toObject()
-  delete obj.item_id
   delete obj._id
   return obj
 }

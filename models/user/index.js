@@ -16,18 +16,19 @@ var sendSms = require('../utils/sendSms');
 });
  */
 router.post('/getsuppliers', function (req, res) {
-  
+
   if (req.body.token) {
-    User.find({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
+    User.find({ token: req.body.token }, ' mobile name family shopname shopphone suppliers', function (err, user) {
       if (err) {
         console.log(err);
       }
-    }).populate('suppliers', '-_id mobile name family address shopname shopphone ')
+    }).populate('suppliers.presentedBy', '-_id mobile name family address shopname shopphone ')
       .exec(function (err, suppliers) {
         if (err) {
           console.log(err);
         }
         if (suppliers.length > 0) {
+          suppliers[0].suppliers.sort(compare);
           return res.json(suppliers);
         }
       });
@@ -36,36 +37,36 @@ router.post('/getsuppliers', function (req, res) {
   }
 });
 
-router.post('/getUser', function (req, res) {  
+router.post('/getUser', function (req, res) {
   if (req.body.token) {
-    User.findOne({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
+    User.findOne({ token: req.body.token }, ' mobile name family shopname shopphone', function (err, user) {
       if (err) {
         console.log(err);
       }
-      if(user){
+      if (user) {
         return res.json(user);
       }
 
-      });
+    });
   } else {
     res.json({ Error: strings.user_not_found })
   }
 });
 
 
-router.post('/getInitialInfo', function (req, res) {  
+router.post('/getInitialInfo', function (req, res) {
   if (req.body.token) {
-    User.findOne({ token: req.body.token },' mobile name family shopname shopphone', function (err, user) {
+    User.findOne({ token: req.body.token }, ' mobile name family shopname shopphone', function (err, user) {
       if (err) {
         console.log(err);
       }
-      if(user){
+      if (user) {
         return res.json({ Message: "09307606826" });
-      }else{
+      } else {
         //res.status=401;
         res.send(401, { Error: strings.user_not_found });
       }
-      });
+    });
   } else {
     res.json({ Error: strings.user_not_found })
   }
@@ -73,31 +74,35 @@ router.post('/getInitialInfo', function (req, res) {
 
 router.post('/addSupplier', function (req, res) {
   if (req.body.token && req.body.introducecode) {
+    var date = new Date();
     User.findOne({ token: req.body.token }, function (err, user) {
       console.log(user);
       if (user) {
-        Supplier.findOneAndUpdate({ introducecode: req.body.introducecode }, { $push: { users: user } },
+        Supplier.findOneAndUpdate({ introducecode: req.body.introducecode }, { $push: { users: { createTime: date, present: user } } },
           function (err, supplier) {
             if (err) {
               console.log(err);
             } else {
-              if(supplier){
-                user.suppliers.push(supplier);
+              if (supplier) {
+                var supplierObj = {
+                  createTime: date,
+                  presentedBy: supplier
+                };
+                user.suppliers.push(supplierObj);
                 user.save(function (err) {
-                  if(err){
+                  if (err) {
                     console.log(err);
-                  }else{
-                    res.json({ Message: strings.supplier_added })    
+                  } else {
+                    res.json({ Message: strings.supplier_added })
                   }
-                  
                 })
-              }else{
-                res.json({ Error: strings.wrong_refer_code })    
+              } else {
+                res.json({ Error: strings.wrong_refer_code })
               }
             }
           });
-      }else{
-        res.json({ Error: strings.user_not_found })    
+      } else {
+        res.json({ Error: strings.user_not_found })
       }
     });
   }
@@ -118,16 +123,18 @@ router.post('/sendUserInfo', function (req, res, next) {
       shopphone: req.body.shopphone,
       shoplat: req.body.shoplat,
       shoplng: req.body.shoplng,
-    }, { "fields": "name family shopname shopphone",
-      new: true }, function (err, user) {
-      if (err) {
-        console.log(err);
-        res.json({ Error: strings.internal_server })
-      }
-      if (user) {
-        res.json({ Message: user })
-      }
-    })
+    }, {
+        "fields": "name family shopname shopphone",
+        new: true
+      }, function (err, user) {
+        if (err) {
+          console.log(err);
+          res.json({ Error: strings.internal_server })
+        }
+        if (user) {
+          res.json({ Message: user })
+        }
+      })
   }
 })
 
@@ -140,17 +147,17 @@ router.post('/setUserToken', function (req, res, next) {
         res.json({ Error: strings.internal_server })
       }
       if (user) {
-        if(user.ostoken!=req.body.oneSignalToken){
-          user.ostoken=req.body.oneSignalToken;
-          user.save(function(er){
-            if(er){
+        if (user.ostoken != req.body.oneSignalToken) {
+          user.ostoken = req.body.oneSignalToken;
+          user.save(function (er) {
+            if (er) {
               console.log(er);
-            }else{
+            } else {
               res.json({ Message: strings.done })
             }
           })
-        }else{
-          res.json({ Error: strings.repeated_code })  
+        } else {
+          res.json({ Error: strings.repeated_code })
         }
       } else {
         res.json({ Error: strings.user_not_found })
@@ -171,6 +178,7 @@ router.post('/confirmSmsCode', function (req, res, next) {
         if (vcode == req.body.vCode) {
           generateToken(function (token) {
             user.token = token;
+            user.schema_version = 1;
             user.save(function (error) {
               if (!error) {
                 var IsUserRegistered = null;
@@ -196,6 +204,7 @@ router.post('/sendConfirmCode', function (req, res, next) {
       if (user) {
         var vcode = generateCode(user.user_id);
         sendSms(vcode, req.body.mobile);
+        user.schema_version = 1;
         if (user.smscount) {
           user.smscount = user.smscount + 1;
         } else {
@@ -230,18 +239,23 @@ router.post('/login', function (req, res, next) {
             } else {
               var date = new Date();
               var userData = {
+                schema_version: 1,
                 user_id: getUserId(),
                 mobile: req.body.mobile,
                 refercode: req.body.refercode,
                 createTime: date,
-                suppliers: [supplier]
+                suppliers: [{ createTime: date, presentedBy: supplier }]
               }
               User.create(userData, function (error, user) {
                 if (error) {
                   console.log(error);
                   return next(error);
                 } else {
-                  supplier.users.push(user);
+                  var userObj = {
+                    createTime: date,
+                    present: user
+                  }
+                  supplier.users.push(userObj);
                   supplier.save(function (error) {
                     if (error) {
                       console.log(error);
@@ -310,5 +324,13 @@ function hasError(res, err) {
     return false;
   }
 };
+
+function compare(a,b) {
+  if (a.createTime < b.createTime)
+    return 1;
+  if (a.createTime > b.createTime)
+    return -1;
+  return 0;
+}
 
 module.exports = router;

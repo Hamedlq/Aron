@@ -20,16 +20,17 @@ var sendNotif = require('../utils/sendSupplierNotification');
 
 router.post('/getusers', function (req, res) {
   if (req.body.token) {
-    Supplier.find({ token: req.body.token }, 'mobile name family address shopname shopphone ', function (err, supplier) {
+    Supplier.find({ token: req.body.token }, 'mobile name family address shopname shopphone users', function (err, supplier) {
       if (err) {
         console.log(err);
       }
-    }).populate('users', '-_id mobile name family address shopname shopphone ')
+    }).populate('users.present', '-_id mobile name family address shopname shopphone ')
       .exec(function (err, users) {
         if (err) {
           console.log(err);
         }
         if (users.length > 0) {
+          users[0].users.sort(compare);
           return res.json(users);
         }
       });
@@ -72,7 +73,10 @@ router.post('/getInitialInfo', function (req, res) {
         console.log(err);
       }
       if(supplier){
-        return res.json("09307606826");
+        return res.json({ Message: "09307606826" });
+      }else{
+        //res.status=401;
+        res.send(401, { Error: strings.user_not_found });
       }
       });
   } else {
@@ -121,6 +125,7 @@ router.post('/confirmSmsCode', function (req, res, next) {
           generateToken(function (token) {
             supplier.token = token;
             supplier.introducecode = generateRandom();
+            supplier.schema_version = 1;
             supplier.save(function (error) {
               if (!error) {
                 var IsSupplierRegistered = null;
@@ -133,13 +138,16 @@ router.post('/confirmSmsCode', function (req, res, next) {
                   Introducecode: supplier.introducecode
                 });
               } else {
-                return next(err);
+                console.log(error)
+                return next(error);
               }
             });
           });
         } else {
           return res.json({ Error: strings.wrong_confirmcode });
         }
+      }else {
+        return res.json({ Error: strings.user_not_found });
       }
     })
   }
@@ -172,6 +180,7 @@ router.post('/sendConfirmCode', function (req, res, next) {
       if (supplier) {
         var vcode = generateCode(supplier.supplier_id);
         sendSms(vcode, req.body.mobile);
+        supplier.schema_version=1;
         if (supplier.smscount) {
           supplier.smscount = supplier.smscount + 1;
         } else {
@@ -179,6 +188,7 @@ router.post('/sendConfirmCode', function (req, res, next) {
         }
         supplier.save(function (er) {
           if (er) {
+            console.log(er);
             return res.json({ Error: strings.internal_server });
           }
         })
@@ -199,13 +209,14 @@ router.post('/login', function (req, res, next) {
         if (req.body.refercode) {
           Supplier.findOne({ introducecode: req.body.refercode }, function (err, supplier) {
             //console.log(supplier);
-            if (!supplier) {
+            if (supplier) {
               //console.log(new Error(strings.wrong_refercode));
               return res.json({ Error: strings.wrong_refercode });
             } else {
               getSupplierId(function (randId) {
                 var date = new Date();
                 var supplierData = {
+                  schema_version: 1,
                   supplier_id: randId,
                   mobile: req.body.mobile,
                   refercode: req.body.refercode,
@@ -244,7 +255,7 @@ function generateCode(_id) {
   var diff = (now - start) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
   var oneDay = 1000 * 60 * 60 * 24;
   var day = Math.floor(diff / oneDay);
-  console.log('day: ' + day);
+  //console.log('day: ' + day);
   var code = (day * _id) % 1000;
   console.log('coder: ' + code);
   return code;
@@ -266,6 +277,7 @@ function getSupplierId(callback) {
 function generateToken(callback) {
   require('crypto').randomBytes(16, function (err, buffer) {
     token = buffer.toString('hex');
+    console.log(token);
     return callback(token);
   });
 }
@@ -274,5 +286,14 @@ function generateRandom() {
   var ranId = Math.floor(Math.random() * Math.floor(999999));
   return ranId;
 }
+
+function compare(a,b) {
+  if (a.createTime < b.createTime)
+    return 1;
+  if (a.createTime > b.createTime)
+    return -1;
+  return 0;
+}
+
 
 module.exports = router;

@@ -8,24 +8,36 @@ var sendNotif = require('../utils/sendSupplierNotification');
 
 router.post('/insertOrder', function (req, res, next) {
     if (req.body.token && req.body.item_id) {
+        var date = new Date();
         User.findOne({ token: req.body.token }, function (err, user) {
             if (user) {
-                Item.findOneAndUpdate({ item_id: req.body.item_id }, { $push: { users: user } },
+                Item.findOneAndUpdate({ item_id: req.body.item_id }, {
+                    $push: {
+                        users: {
+                            createTime: date,
+                            orderedBy: user
+                        }
+                    }
+                },
                     function (err, item) {
                         if (err) {
                             console.log(err);
                         } else {
                             if (item) {
-                                user.items.push(item);
+                                var itemObj = {
+                                    createTime: date,
+                                    ordered: item
+                                };
+                                user.items.push(itemObj);
                                 user.save(function (err) {
                                     if (err) {
                                         console.log(err);
                                     } else {
-                                        Supplier.findOne({ _id: item.supplier_id},function(err,supplier){
-                                            if(err){console.log(err)}else{
-                                                sendNotif(supplier.ostoken, 
-                                                   item.itemName +" "+ item.itemBrand , 
-                                                user.name +" "+user.family+" سفارش "+item.itemName +" "+ item.itemBrand +" ثبت کرده است");
+                                        Supplier.findOne({ _id: item.supplier_id }, function (err, supplier) {
+                                            if (err) { console.log(err) } else {
+                                                sendNotif(supplier.ostoken,
+                                                    item.itemName + " " + item.itemBrand,
+                                                    user.name + " " + user.family + " سفارش " + item.itemName + " " + item.itemBrand + " ثبت کرده است");
                                             }
                                         })
                                         res.json({ Message: strings.item_added })
@@ -52,12 +64,13 @@ router.post('/supplierOrders', function (req, res) {
             if (err) {
                 console.log(err);
             } else {
-                console.log(supplier);
-                Item.find({ supplier_id: supplier._id },'itemName itemBrand itemPrice itemDescription', function (err, item) {
+                //console.log(supplier);
+                Item.find({ supplier_id: supplier._id }, 'itemName itemBrand itemPrice itemDescription users', 
+                function (err, item) {
                     if (err) {
                         console.log(err);
                     }
-                }).populate('users', '-_id mobile name family address shopname shopphone ')
+                }).populate('users.orderedBy', '-_id mobile name family address shopname shopphone ')
                     .exec(function (err, users) {
                         if (err) {
                             console.log(err);
@@ -75,13 +88,18 @@ router.post('/supplierOrders', function (req, res) {
 
 router.post('/userOrders', function (req, res) {
     if (req.body.token) {
-        User.find({ token: req.body.token }, 'mobile' , function (err, user) {
+        User.find({ token: req.body.token }, 'mobile items', function (err, user) {
             if (err) {
                 console.log(err);
             }
+            console.log(req.body.token);
+            console.log(user);
         }).populate({
-            path: 'items', select: '-_id item_id itemName itemBrand itemPrice itemDescription',
-            populate: { path: 'supplier_id', select: '-_id mobile name family shopname shopphone' }
+            path: 'items.ordered', select: '-_id item_id itemName itemBrand itemPrice itemDescription ',
+            populate: {
+                path: 'supplier_id',
+                select: '-_id mobile name family shopname shopphone'
+            }
         })
             .exec(function (err, items) {
 
@@ -89,7 +107,8 @@ router.post('/userOrders', function (req, res) {
                     console.log(err);
                 }
                 if (items.length > 0) {
-                    console.log(items);
+                    //console.log(items);
+                    items[0].items.sort(compare);
                     return res.json(items);
                 }
             });
@@ -108,25 +127,25 @@ router.post('/cancelOrder', function (req, res) {
             }
             if (user) {
                 Item.findOneAndUpdate({ item_id: req.body.item_id },
-                    { $pull: { users: user._id } },
+                    { $pull: { users:{ orderedBy:user._id } }},
                     function (err, item) {
                         if (err) {
                             console.log(err);
                         }
-                        if(item){
-                            user.update({ $pull: { items: item._id } },function(err){
+                        if (item) {
+                            user.update({ $pull: { items:{ ordered:item._id } }}, function (err) {
                                 if (err) {
                                     console.log(err);
-                                }else{
-                                    Supplier.findOne({ _id: item.supplier_id},function(err,supplier){
-                                        if(err){console.log(err)}else{
-                                            sendNotif(supplier.ostoken, 
-                                               'سفارش '+item.itemName +" "+ item.itemBrand + " کنسل شد", 
-                                            user.name +" "+user.family+" سفارش "+item.itemName +" "+ item.itemBrand +" را حذف کرد");
+                                } else {
+                                    Supplier.findOne({ _id: item.supplier_id }, function (err, supplier) {
+                                        if (err) { console.log(err) } else {
+                                            sendNotif(supplier.ostoken,
+                                                'سفارش ' + item.itemName + " " + item.itemBrand + " کنسل شد",
+                                                user.name + " " + user.family + " سفارش " + item.itemName + " " + item.itemBrand + " را حذف کرد");
                                         }
                                     })
                                     res.json({ Message: strings.order_removed })
-                                }       
+                                }
                             })
                         }
                     });
@@ -136,6 +155,14 @@ router.post('/cancelOrder', function (req, res) {
         });
     }
 });
+
+function compare(a,b) {
+    if (a.createTime < b.createTime)
+      return 1;
+    if (a.createTime > b.createTime)
+      return -1;
+    return 0;
+  }
 
 
 module.exports = router;

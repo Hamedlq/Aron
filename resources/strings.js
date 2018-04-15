@@ -13,6 +13,7 @@ module.exports = {
     internal_server : "خطای سرور رخ داده است",
     user_not_found : "کاربر پیدا نشد",
     supplier_added : "تامین کننده اضافه شد",
+    wrong_refer_code : "کد معرفی اشتباه است",
     item_added : "سفارش ثبت شد",
     order_removed : "سفارش حذف شد",
     wrong_confirmcode : "کد تایید اشتباه است",

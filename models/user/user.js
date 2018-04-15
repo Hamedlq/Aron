@@ -3,6 +3,10 @@ var strings = require('../../resources/strings');
 var Supplier=require('../supplier/supplier');
 
 var UserSchema = new mongoose.Schema({
+  schema_version:{
+    type:  Number,
+    required: true,
+  },
   user_id: {
     type:  Number,
     required: true,
@@ -71,9 +75,9 @@ var UserSchema = new mongoose.Schema({
   shoplng: {
     type: String,
   },
-  suppliers : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' }],
+  suppliers : [{createTime:Date,presentedBy:{ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' }}],
 
-  items : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+  items : [{createTime:Date,ordered:{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }}]
 });
 
 UserSchema.methods.toJSON = function() {
