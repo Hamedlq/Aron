@@ -18,6 +18,8 @@ module.exports = {
     order_removed : "سفارش حذف شد",
     wrong_confirmcode : "کد تایید اشتباه است",
     item_has_order : "سفارشی برای این کالا وجود دارد ابتدا آن را پاک کنید",
+    user_has_order : "شما چند سفارش باز از این ویزیتور دارید. ابتدا آن ها راحذف کنید",
+    supplier_removed : "ویزیتور حذف شد",
     item_removed : "کالا پاک شد",
     no_result_found : "نتیجه ای پیدا نشد",
     done: "ثبت شد",

@@ -118,7 +118,7 @@ router.post('/supplierItems', function (req, res) {
                 if (err) {
                     console.log(err);
                 }
-            }).populate('items.submitted', '-_id item_id itemName itemBrand itemPrice itemDescription')
+            }).populate('items.submitted', '-_id item_id itemName itemBrand itemPrice visitorPrice itemDescription')
             .exec(function (err, items) {
                 if (err) {
                     console.log(err);
@@ -143,7 +143,7 @@ router.post('/supplierSearchItems', function (req, res) {
                     console.log(err);
                 }
             }).populate({
-                path: 'items.submitted', select: '-_id item_id itemName itemBrand itemPrice itemDescription',
+                path: 'items.submitted', select: '-_id item_id itemName itemBrand itemPrice visitorPrice itemDescription',
                 //match: { $text: { $search: req.body.query } }
                 match: {
                     $or: [
@@ -191,7 +191,7 @@ router.post('/userItems', function (req, res) {
             path: 'suppliers.presentedBy', select: '-_id mobile name family shopname shopphone items',
             populate: {
                 path: 'items.submitted',
-                select: '-_id item_id itemName itemBrand itemPrice itemDescription'
+                select: '-_id item_id itemName itemBrand itemPrice visitorPrice itemDescription'
             }
         })
             .exec(function (err, items) {
@@ -219,7 +219,7 @@ router.post('/userSearchItem', function (req, res) {
         }).populate({
             path: 'suppliers.presentedBy', select: '-_id mobile name family shopname shopphone items',
             populate: {
-                path: 'items.submitted', select: '-_id item_id itemName itemBrand itemPrice itemDescription',
+                path: 'items.submitted', select: '-_id item_id itemName itemBrand itemPrice visitorPrice itemDescription',
                 match: {
                     $or: [
                         { 'itemName': regex },

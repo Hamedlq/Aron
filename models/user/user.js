@@ -78,7 +78,7 @@ var UserSchema = new mongoose.Schema({
   suppliers : [{createTime:Date,presentedBy:{ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' }}],
 
   items : [{createTime:Date,ordered:{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }}]
-});
+},{timestamps: true});
 
 UserSchema.methods.toJSON = function() {
   var obj = this.toObject()

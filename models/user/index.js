@@ -16,13 +16,12 @@ var sendSms = require('../utils/sendSms');
 });
  */
 router.post('/getsuppliers', function (req, res) {
-
   if (req.body.token) {
     User.find({ token: req.body.token }, ' mobile name family shopname shopphone suppliers', function (err, user) {
       if (err) {
         console.log(err);
       }
-    }).populate('suppliers.presentedBy', '-_id mobile name family address shopname shopphone ')
+    }).populate('suppliers.presentedBy', '-_id mobile supplier_id name family address shopname shopphone ')
       .exec(function (err, suppliers) {
         if (err) {
           console.log(err);
@@ -105,6 +104,74 @@ router.post('/addSupplier', function (req, res) {
         res.json({ Error: strings.user_not_found })
       }
     });
+  }
+  else {
+    res.json({ Error: strings.user_not_found })
+  }
+});
+
+
+router.post('/deleteSupplier', function (req, res) {
+  if (req.body.token && req.body.supplier_id) {
+    User.find({ token: req.body.token },
+      function (err, user) {
+        //console.log(supplier);
+        if (err) {
+          console.log(err);
+        }
+      }).populate({
+        path: 'items.ordered',
+        populate: {
+          path: 'supplier_id'
+        }
+      }).exec(
+        function (err, items) {
+          if (err) {
+            console.log(err);
+          }
+          if (items.length > 0) {
+            var hasOrder = false;
+            for (var i = 0; i < items.length; i++) {
+              for (var j = 0; j < items[i].items.length; j++) {
+                if (items[i].items[j].ordered != null) {
+                  console.log("as" + items[i].items[j].ordered)
+                  if (items[i].items[j].ordered.supplier_id.supplier_id == req.body.supplier_id) {
+                    hasOrder = true;
+                    return res.json({ Error: strings.user_has_order })
+                  }
+                }
+              }
+            }
+            if (!hasOrder) {
+              User.findOne({ token: req.body.token },
+                function (err, user) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    Supplier.findOneAndUpdate({ supplier_id: req.body.supplier_id },
+                      { $pull: { users: { present: user._id } } },
+                      function (err, supplier) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          User.update({ token: req.body.token },
+                            { $pull: { suppliers: { presentedBy: supplier._id } } },
+                            function (err) {
+                              //console.log(supplier);
+                              if (err) {
+                                console.log(err);
+                              } else {
+                                return res.json({ Message: strings.supplier_removed })
+                              }
+                            })
+                        }
+                      })
+                  }
+                })
+
+            }
+          }
+        })
   }
   else {
     res.json({ Error: strings.user_not_found })
@@ -325,7 +392,7 @@ function hasError(res, err) {
   }
 };
 
-function compare(a,b) {
+function compare(a, b) {
   if (a.createTime < b.createTime)
     return 1;
   if (a.createTime > b.createTime)

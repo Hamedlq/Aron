@@ -65,7 +65,7 @@ router.post('/supplierOrders', function (req, res) {
                 console.log(err);
             } else {
                 //console.log(supplier);
-                Item.find({ supplier_id: supplier._id }, 'itemName itemBrand itemPrice itemDescription users', 
+                Item.find({ supplier_id: supplier._id }, 'itemName itemBrand itemPrice visitorPrice itemDescription users', 
                 function (err, item) {
                     if (err) {
                         console.log(err);
@@ -95,7 +95,7 @@ router.post('/userOrders', function (req, res) {
             console.log(req.body.token);
             console.log(user);
         }).populate({
-            path: 'items.ordered', select: '-_id item_id itemName itemBrand itemPrice itemDescription ',
+            path: 'items.ordered', select: '-_id item_id itemName itemBrand itemPrice visitorPrice itemDescription ',
             populate: {
                 path: 'supplier_id',
                 select: '-_id mobile name family shopname shopphone'
