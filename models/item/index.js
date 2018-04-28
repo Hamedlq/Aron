@@ -64,6 +64,40 @@ router.post('/insertItem', function (req, res, next) {
     }
 })
 
+router.post('/updateItem', function (req, res, next) {
+    if (req.body.token) {
+        Supplier.findOne({ token: req.body.token }, function (err, thesupplier) {
+            if (thesupplier) {
+                //console.log(thesupplier);
+                //console.log(req.body);
+                Item.findOneAndUpdate({ item_id: req.body.item_id, supplier_id: thesupplier._id }, {
+                    itemName: req.body.itemName,
+                    itemBrand: req.body.itemBrand,
+                    visitorPrice: req.body.visitorPrice,
+                    itemPrice: req.body.itemPrice,
+                    itemDescription: req.body.itemDescription
+                }, {
+                        "fields": "itemName itemBrand visitorPrice itemPrice itemDescription",
+                        new: true
+                    }, function (err, item) {
+                        if (err) {
+                            console.log(error);
+                            return next(error);
+                        } else {
+                            return res.json({ Message: strings.item_updated });
+                        }
+                    })
+            } else {
+                res.json({ Error: strings.user_not_found })
+            }
+        })
+    } else {
+        res.json({ Error: strings.user_not_found })
+    }
+
+})
+
+
 
 router.post('/delete', function (req, res) {
     if (req.body.token && req.body.item_id) {
@@ -199,7 +233,8 @@ router.post('/userItems', function (req, res) {
                     console.log(err);
                 }
                 if (items.length > 0) {
-
+                    //console.log(items[0].suppliers);
+                    items[0].suppliers.sort(compare);
                     return res.json(items);
                 }
             });

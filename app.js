@@ -7,7 +7,7 @@ var app = express();
 var router = express.Router();
 
 //db config
-mongoose.connect('mongodb://utest:123qwe@ds133296.mlab.com:33296/hamedtest');
+ mongoose.connect('mongodb://utest:123qwe@ds133296.mlab.com:33296/hamedtest');
 //mongoose.connect('mongodb://aronppadmin:5acDMMqgAHZxnR2Y5NiK@82.102.10.119:27017/aronapp');
 var db = mongoose.connection;
 

@@ -210,7 +210,7 @@ router.post('/login', function (req, res, next) {
           Supplier.findOne({ introducecode: req.body.refercode }, function (err, supplier) {
             //console.log(supplier);
             if (!supplier) {
-              //console.log(new Error(strings.wrong_refercode));
+              console.log(supplier);
               return res.json({ Error: strings.wrong_refercode });
             } else {
               getSupplierId(function (randId) {

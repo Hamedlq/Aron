@@ -76,6 +76,8 @@ router.post('/supplierOrders', function (req, res) {
                             console.log(err);
                         }
                         if (users.length > 0) {
+                            users[0].users.sort(compare);
+                            console.log(users);
                             return res.json(users);
                         }
                     });
