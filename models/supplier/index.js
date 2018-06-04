@@ -124,7 +124,9 @@ router.post('/confirmSmsCode', function (req, res, next) {
         if (vcode == req.body.vCode) {
           generateToken(function (token) {
             supplier.token = token;
-            supplier.introducecode = generateRandom();
+            if(supplier.introducecode ==null){
+              supplier.introducecode = generateRandom();
+            }
             supplier.schema_version = 1;
             supplier.save(function (error) {
               if (!error) {

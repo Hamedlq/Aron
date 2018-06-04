@@ -2,6 +2,9 @@ var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
+var hostport= 3000;
+global.Host="http://localhost:"+hostport;
+
 //and create our instances
 var app = express();
 var router = express.Router();
@@ -41,6 +44,9 @@ var itemroutes = require('./models/item/index');
 app.use('/item', itemroutes);
 var orderroutes = require('./models/order/index');
 app.use('/order', orderroutes);
+//version2
+var itemroutes = require('./models/item/index.1');
+app.use('/v1/item', itemroutes);
 
 
 // catch 404 and forward to error handler
@@ -60,6 +66,6 @@ app.use(function (req, res, next) {
   
   
   // listen on port 3000
-  app.listen(3000, function () {
-    console.log('Express app listening on port 3000');
+  app.listen(hostport, function () {
+    console.log('Express app listening on port '+hostport);
   });
